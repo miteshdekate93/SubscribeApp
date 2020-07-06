@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "Landing Page";
+}
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<style>
+    .error, #error {
+        color: red;
+        display: none;
+    }
+
+    .error2, #error2 {
+        color: red;
+        display: none;
+    }
+</style>
+
+<a href="#" data-toggle="modal" data-target="#exampleModal">
+    <img src="~/Assets/Images/banner.JPG" class="img-fluid" alt="Banner image not available." style="width: 1200px">
+</a>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Get the latest from Merrithew delivered right to your inbox</h4>
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>*@
+            </div>
+            <div class="modal-body">
+                <form name="postform" id="postform">
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Name:<span style="color: red">*</span></label>
+                        <input type="text" class="form-control" id="txtname" autocomplete="off">
+                        <span class="error">Please provide Name</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Email:<span style="color: red">*</span></label>
+                        <input type="text" class="form-control" id="txtemail" autocomplete="off">
+                        <span class="error">Invalid email ID</span>
+                        <span class="error2">Please provide email</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" form="postform" id="btnSubscribe" class="btn btn-primary">Subscribe</button>
+                <div class="alert alert-success" role="alert" id="success-alert" style="margin-top: 5px; text-align: left">
+                    <strong>Thank you! You have successfully subscribed to our newsletter. </strong>
+                </div>
+                <div class="alert alert-danger" role="alert" id="danger-alert" style="margin-top: 5px; text-align: left">
+                    <strong>Error please try again! </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#success-alert").hide();
+        $("#danger-alert").hide();
+        $("#postform").submit(function (e) {
+            $('#btnSubscribe').prop("disabled", true);
+            $('#btnSubscribe').html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`);
+            e.preventDefault();
+            var isOK = ValidateForm();
+            if (isOK) {
+                var apiurl = "http://localhost:62176/api/Subscriber";
+                var data = {
+                    Name: $("#txtname").val().trim(),
+                    Email: $("#txtemail").val().trim()
+                }
+                $.ajax({
+                    url: apiurl,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success: function (d) {
+                        $('#btnSubscribe').prop("disabled", false);
+                            $('#btnSubscribe').html(`Subscribe`);
+                            document.getElementById("postform").reset();
+                            $("#success-alert").fadeTo(4000, 500).slideUp(500,
+                                function () {
+                                    $("#success-alert").slideUp(500);
+                                });
+                    },
+                    error: function () {
+                        $('#btnSubscribe').prop("disabled", false);
+                            $('#btnSubscribe').html(`Subscribe`);
+                            $("#danger-alert").fadeTo(3000, 500).slideUp(500,
+                                function () {
+                                    $("#danger-alert").slideUp(500);
+                                });
+                    }
+                });
+            } else {
+                $('#btnSubscribe').prop("disabled", false);
+                $('#btnSubscribe').html(`Subscribe`);
+            }
+        });
+    });
+    function ValidateForm() {
+        var isAllValid = true;
+        $('.error').hide();
+        $('#error').empty();
+        $('.form-group').removeClass('has-error');
+        $('.error2').hide();
+        $('#error2').empty();
+        $('.form-group').removeClass('has-error2');
+        if ($('#txtname').val().trim() == "") {
+            $('#txtname').focus();
+            $('#txtname').siblings('.error').show();
+            $('#txtname').parents('.form-group').addClass('has-error');
+            isAllValid = false;
+        }
+        if ($('#txtemail').val().trim() == "") {
+            $('#txtemail').siblings('.error2').show();
+            $('#txtemail').parents('.form-group').addClass('has-error2');
+            isAllValid = false;
+        }
+        if ($('#txtemail').val().trim() != "") {
+            $('.error2').hide();
+            $('#error2').empty();
+            $('.form-group').removeClass('has-error2');
+            var expr = /^([a-zA-Z0-9_\-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+            if (!expr.test($('#txtemail').val().trim())) {
+                $('#txtemail').focus();
+                $('#txtemail').siblings('.error').show();
+                $('#txtemail').parents('.form-group').addClass('has-error');
+                isAllValid = false;
+            }
+        }
+        return isAllValid;
+    }
+</script>

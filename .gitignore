@@ -2,3 +2,8 @@
 # .NET build output
 bin/
 obj/
+
+# IDE
+.idea/
+*.DotSettings.user
+*.user

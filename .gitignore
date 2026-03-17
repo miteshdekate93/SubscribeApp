@@ -5,5 +5,11 @@ obj/
 
 # IDE
 .idea/
+.vscode/
 *.DotSettings.user
 *.user
+.DS_Store
+
+# Node
+node_modules/
+dist/
